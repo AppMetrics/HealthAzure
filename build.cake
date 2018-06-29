@@ -40,7 +40,7 @@ var linkSources					= HasArgument("LinkSources") ? Argument<bool>("LinkSources")
 var packDirs                    = new [] {
 											Directory("./src/App.Metrics.Health.Checks.AzureStorage"),
 											Directory("./src/App.Metrics.Health.Checks.AzureDocumentDB"),
-											Directory("./src/App.Metrics.Health.Checks.AureServiceBus"),
+											Directory("./src/App.Metrics.Health.Checks.AzureServiceBus"),
 											Directory("./src/App.Metrics.Health.Checks.AzureEventHubs")
 										};
 var artifactsDir                = (DirectoryPath) Directory("./artifacts");
