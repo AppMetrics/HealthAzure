@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="App.Metrics.Health.Abstractions" Version="2.1.0-*" />
+    <PackageReference Include="App.Metrics.Health.Abstractions" Version="$(AppMetricsHealthVersion)" />
     <PackageReference Include="Microsoft.Azure.ServiceBus" Version="3.0.2" />
   </ItemGroup>
 
