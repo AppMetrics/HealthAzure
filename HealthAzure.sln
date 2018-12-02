@@ -49,6 +49,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HealthAzureSandbox", "sandb
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.Metrics.Health.Checks.AzureDocumentDB", "src\App.Metrics.Health.Checks.AzureDocumentDB\App.Metrics.Health.Checks.AzureDocumentDB.csproj", "{FDA9F929-C56D-424F-A4B5-8B551931C39C}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.Metrics.Health.Checks.AzureServiceBus", "src\App.Metrics.Health.Checks.AzureServiceBus\App.Metrics.Health.Checks.AzureServiceBus.csproj", "{452F4D94-36E8-4AB0-BD5D-01E5C160E465}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "App.Metrics.Health.Checks.AzureEventHubs", "src\App.Metrics.Health.Checks.AzureEventHubs\App.Metrics.Health.Checks.AzureEventHubs.csproj", "{1AC63139-9B03-4936-9ABF-300523E4522F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +71,14 @@ Global
 		{FDA9F929-C56D-424F-A4B5-8B551931C39C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FDA9F929-C56D-424F-A4B5-8B551931C39C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FDA9F929-C56D-424F-A4B5-8B551931C39C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{452F4D94-36E8-4AB0-BD5D-01E5C160E465}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{452F4D94-36E8-4AB0-BD5D-01E5C160E465}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{452F4D94-36E8-4AB0-BD5D-01E5C160E465}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{452F4D94-36E8-4AB0-BD5D-01E5C160E465}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AC63139-9B03-4936-9ABF-300523E4522F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AC63139-9B03-4936-9ABF-300523E4522F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AC63139-9B03-4936-9ABF-300523E4522F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AC63139-9B03-4936-9ABF-300523E4522F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +90,8 @@ Global
 		{38E7AD0C-9792-4D2D-8C2C-9D9CE6BA210B} = {2D805782-756E-4C98-B22E-F502BEE95318}
 		{6CEA2D2A-FCDD-4C5C-98F8-6C69DFB3F8F9} = {C0BC96C5-46E1-4323-9C5D-58D9A96549CD}
 		{FDA9F929-C56D-424F-A4B5-8B551931C39C} = {2D805782-756E-4C98-B22E-F502BEE95318}
+		{452F4D94-36E8-4AB0-BD5D-01E5C160E465} = {2D805782-756E-4C98-B22E-F502BEE95318}
+		{1AC63139-9B03-4936-9ABF-300523E4522F} = {2D805782-756E-4C98-B22E-F502BEE95318}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A8699A1D-0BA1-403C-86E9-C789CD2645EB}

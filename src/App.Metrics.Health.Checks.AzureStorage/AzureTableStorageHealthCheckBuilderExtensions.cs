@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using App.Metrics.Health.Logging;
 using Microsoft.WindowsAzure.Storage;
 
-namespace App.Metrics.Health.Checks.AzureStorage
+// ReSharper disable CheckNamespace
+namespace App.Metrics.Health
+    // ReSharper restore CheckNamespace
 {
     public static class AzureTableStorageHealthCheckBuilderExtensions
     {
@@ -30,9 +32,33 @@ namespace App.Metrics.Health.Checks.AzureStorage
         public static IHealthBuilder AddAzureTableStorageConnectivityCheck(
             this IHealthCheckBuilder builder,
             string name,
+            string connectionString,
+            TimeSpan cacheDuration)
+        {
+            builder.AddCachedCheck(
+                name,
+                CheckTableStorageConnectivity(name, CloudStorageAccount.Parse(connectionString)),
+                cacheDuration);
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureTableStorageConnectivityCheck(
+            this IHealthCheckBuilder builder,
+            string name,
             CloudStorageAccount storageAccount)
         {
             builder.AddCheck(name, CheckTableStorageConnectivity(name, storageAccount));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureTableStorageConnectivityCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString)
+        {
+            builder.AddCheck(name, CheckTableStorageConnectivity(name, CloudStorageAccount.Parse(connectionString)));
 
             return builder.Builder;
         }
@@ -55,10 +81,36 @@ namespace App.Metrics.Health.Checks.AzureStorage
         public static IHealthBuilder AddAzureTableStorageTableCheck(
             this IHealthCheckBuilder builder,
             string name,
+            string connectionString,
+            string tableName,
+            TimeSpan cacheDuration)
+        {
+            builder.AddCachedCheck(
+                name,
+                CheckAzureTableStorageTableExists(name, CloudStorageAccount.Parse(connectionString), tableName),
+                cacheDuration);
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureTableStorageTableCheck(
+            this IHealthCheckBuilder builder,
+            string name,
             CloudStorageAccount storageAccount,
             string tableName)
         {
             builder.AddCheck(name, CheckAzureTableStorageTableExists(name, storageAccount, tableName));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureTableStorageTableCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString,
+            string tableName)
+        {
+            builder.AddCheck(name, CheckAzureTableStorageTableExists(name, CloudStorageAccount.Parse(connectionString), tableName));
 
             return builder.Builder;
         }

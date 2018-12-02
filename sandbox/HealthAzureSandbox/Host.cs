@@ -8,8 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using App.Metrics.Health;
-using App.Metrics.Health.Checks.AzureDocumentDB;
-using App.Metrics.Health.Checks.AzureStorage;
 using Microsoft.Azure.Documents.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.WindowsAzure.Storage;
@@ -72,20 +70,28 @@ namespace HealthAzureSandbox
             var containerName = "test";
             var documentDbDatabaseUri = UriFactory.CreateDatabaseUri("test");
             var collectionUri = UriFactory.CreateDocumentCollectionUri("test", "testcollection");
-            var documentDbClient = new DocumentClient(
-                new Uri("https://localhost:8081"),
-                "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==");
+            var doucmentDbKey = "C2y6yDjf5/R+ob0N8A7Cgv30VRDJIWEHLM+4QDU5DE2nQ9nDuVTqobD4b8mGGyPMbIZnqyMsEcaGQy67XIw/Jw==";
+            var documentDbUri = "https://localhost:8081";
             var storageAccount = CloudStorageAccount.Parse(@"UseDevelopmentStorage=true");
 
+            var eventHubConnectionString = "todo event hub connection string";
+            var eventHubName = "todo event hub name";
+            var serviceBusConnectionString = "todo sb connection string";
+            var queueName = "todo queue name";
+            var topicName = "todo topic name";
+
             Health = AppMetricsHealth.CreateDefaultBuilder()
-                                     .HealthChecks.AddAzureBlobStorageConnectivityCheck("Blob Storage Conectivity Check", storageAccount)
+                                     .HealthChecks.AddAzureBlobStorageConnectivityCheck("Blob Storage Connectivity Check", storageAccount)
                                      .HealthChecks.AddAzureBlobStorageContainerCheck("Blob Storage Container Check", storageAccount, containerName)
                                      .HealthChecks.AddAzureQueueStorageConnectivityCheck("Queue Storage Connectivity Check", storageAccount)
                                      .HealthChecks.AddAzureQueueStorageCheck("Queue Storage Check", storageAccount, "test")
-                                     .HealthChecks.AddAzureDocumentDBDatabaseCheck("DocumentDB Database Check", documentDbDatabaseUri, documentDbClient)
-                                     .HealthChecks.AddAzureDocumentDBCollectionCheck("DocumentDB Collection Check", collectionUri, documentDbClient)
+                                     .HealthChecks.AddAzureDocumentDBDatabaseCheck("DocumentDB Database Check", documentDbDatabaseUri, documentDbUri, doucmentDbKey)
+                                     .HealthChecks.AddAzureDocumentDBCollectionCheck("DocumentDB Collection Check", collectionUri, documentDbUri, doucmentDbKey)
                                      .HealthChecks.AddAzureTableStorageConnectivityCheck("Table Storage Connectivity Check", storageAccount)
                                      .HealthChecks.AddAzureTableStorageTableCheck("Table Storage Table Exists Check", storageAccount, "test")
+                                     .HealthChecks.AddAzureEventHubConnectivityCheck("Service EventHub Connectivity Check", eventHubConnectionString, eventHubName)
+                                     .HealthChecks.AddAzureServiceBusQueueConnectivityCheck("Service Bus Queue Connectivity Check", serviceBusConnectionString, queueName)
+                                     .HealthChecks.AddAzureServiceBusTopicConnectivityCheck("Service Bus Topic Connectivity Check", serviceBusConnectionString, topicName)
                                      .Build();
         }
 

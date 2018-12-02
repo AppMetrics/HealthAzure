@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using App.Metrics.Health.Logging;
 using Microsoft.WindowsAzure.Storage;
 
-namespace App.Metrics.Health.Checks.AzureStorage
+// ReSharper disable CheckNamespace
+namespace App.Metrics.Health
+    // ReSharper restore CheckNamespace
 {
     public static class AzureQueueStorageHealthCheckBuilderExtensions
     {
@@ -28,10 +30,33 @@ namespace App.Metrics.Health.Checks.AzureStorage
         public static IHealthBuilder AddAzureQueueStorageCheck(
             this IHealthCheckBuilder builder,
             string name,
+            string connectionString,
+            string queueName,
+            TimeSpan cacheDuration)
+        {
+            builder.AddCachedCheck(name, CheckQueueExistsAsync(name, CloudStorageAccount.Parse(connectionString), queueName), cacheDuration);
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageCheck(
+            this IHealthCheckBuilder builder,
+            string name,
             CloudStorageAccount storageAccount,
             string queueName)
         {
             builder.AddCheck(name, CheckQueueExistsAsync(name, storageAccount, queueName));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString,
+            string queueName)
+        {
+            builder.AddCheck(name, CheckQueueExistsAsync(name, CloudStorageAccount.Parse(connectionString), queueName));
 
             return builder.Builder;
         }
@@ -53,11 +78,37 @@ namespace App.Metrics.Health.Checks.AzureStorage
         public static IHealthBuilder AddAzureQueueStorageConnectivityCheck(
             this IHealthCheckBuilder builder,
             string name,
+            string connectionString,
+            TimeSpan cacheDuration)
+        {
+            builder.AddCachedCheck(
+                name,
+                CheckStorageAccountConnectivity(name, CloudStorageAccount.Parse(connectionString)),
+                cacheDuration);
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageConnectivityCheck(
+            this IHealthCheckBuilder builder,
+            string name,
             CloudStorageAccount storageAccount)
         {
             builder.AddCheck(
                 name,
                 CheckStorageAccountConnectivity(name, storageAccount));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageConnectivityCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString)
+        {
+            builder.AddCheck(
+                name,
+                CheckStorageAccountConnectivity(name, CloudStorageAccount.Parse(connectionString)));
 
             return builder.Builder;
         }
