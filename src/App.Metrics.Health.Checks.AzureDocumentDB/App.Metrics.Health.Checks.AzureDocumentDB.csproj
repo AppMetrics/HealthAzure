@@ -9,7 +9,7 @@
 
   <ItemGroup>
     <PackageReference Include="App.Metrics.Health.Abstractions" Version="$(AppMetricsHealthVersion)" />
-    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="1.9.1" />
+    <PackageReference Include="Microsoft.Azure.DocumentDB.Core" Version="2.1.3" />
   </ItemGroup>
 
 </Project>
