@@ -22,7 +22,7 @@ namespace App.Metrics.Health
             string queueName,
             TimeSpan cacheDuration)
         {
-            builder.AddCachedCheck(name, CheckQueueExistsAsync(name, storageAccount, queueName), cacheDuration);
+            builder.AddCachedCheck(name, CheckQueueExists(name, storageAccount, queueName), cacheDuration);
 
             return builder.Builder;
         }
@@ -34,7 +34,7 @@ namespace App.Metrics.Health
             string queueName,
             TimeSpan cacheDuration)
         {
-            builder.AddCachedCheck(name, CheckQueueExistsAsync(name, CloudStorageAccount.Parse(connectionString), queueName), cacheDuration);
+            builder.AddCachedCheck(name, CheckQueueExists(name, CloudStorageAccount.Parse(connectionString), queueName), cacheDuration);
 
             return builder.Builder;
         }
@@ -45,7 +45,7 @@ namespace App.Metrics.Health
             CloudStorageAccount storageAccount,
             string queueName)
         {
-            builder.AddCheck(name, CheckQueueExistsAsync(name, storageAccount, queueName));
+            builder.AddCheck(name, CheckQueueExists(name, storageAccount, queueName));
 
             return builder.Builder;
         }
@@ -56,7 +56,7 @@ namespace App.Metrics.Health
             string connectionString,
             string queueName)
         {
-            builder.AddCheck(name, CheckQueueExistsAsync(name, CloudStorageAccount.Parse(connectionString), queueName));
+            builder.AddCheck(name, CheckQueueExists(name, CloudStorageAccount.Parse(connectionString), queueName));
 
             return builder.Builder;
         }
@@ -113,18 +113,132 @@ namespace App.Metrics.Health
             return builder.Builder;
         }
 
-        private static Func<ValueTask<HealthCheckResult>> CheckQueueExistsAsync(string name, CloudStorageAccount storageAccount, string queueName)
+        public static IHealthBuilder AddAzureQueueStorageMessageCountCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            CloudStorageAccount storageAccount,
+            string queueName,
+            long degradedThreshold = 1,
+            long? unhealthyThreshold = null)
         {
+            if (unhealthyThreshold.HasValue && unhealthyThreshold < degradedThreshold)
+            {
+                throw new ArgumentException("Unhealthy threshold must not be less than degraded threshold.", nameof(unhealthyThreshold));
+            }
+
+            if (degradedThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(degradedThreshold));
+            }
+
+            if (unhealthyThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(unhealthyThreshold));
+            }
+
+            builder.AddCheck(name, CheckMessageCount(name, storageAccount, queueName, degradedThreshold, unhealthyThreshold));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageMessageCountCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString,
+            string queueName,
+            long degradedThreshold = 1,
+            long? unhealthyThreshold = null)
+        {
+            if (unhealthyThreshold.HasValue && unhealthyThreshold < degradedThreshold)
+            {
+                throw new ArgumentException("Unhealthy threshold must not be less than degraded threshold.", nameof(unhealthyThreshold));
+            }
+
+            if (degradedThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(degradedThreshold));
+            }
+
+            if (unhealthyThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(unhealthyThreshold));
+            }
+
+            builder.AddCheck(name, CheckMessageCount(name, CloudStorageAccount.Parse(connectionString), queueName, degradedThreshold, unhealthyThreshold));
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageMessageCountCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            CloudStorageAccount storageAccount,
+            string queueName,
+            TimeSpan cacheDuration,
+            long degradedThreshold = 1,
+            long? unhealthyThreshold = null)
+        {
+            if (unhealthyThreshold.HasValue && unhealthyThreshold < degradedThreshold)
+            {
+                throw new ArgumentException("Unhealthy threshold must not be less than degraded threshold.", nameof(unhealthyThreshold));
+            }
+
+            if (degradedThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(degradedThreshold));
+            }
+
+            if (unhealthyThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(unhealthyThreshold));
+            }
+
+            builder.AddCachedCheck(name, CheckMessageCount(name, storageAccount, queueName, degradedThreshold, unhealthyThreshold), cacheDuration);
+
+            return builder.Builder;
+        }
+
+        public static IHealthBuilder AddAzureQueueStorageMessageCountCheck(
+            this IHealthCheckBuilder builder,
+            string name,
+            string connectionString,
+            string queueName,
+            TimeSpan cacheDuration,
+            long degradedThreshold = 1,
+            long? unhealthyThreshold = null)
+        {
+            if (unhealthyThreshold.HasValue && unhealthyThreshold < degradedThreshold)
+            {
+                throw new ArgumentException("Unhealthy threshold must not be less than degraded threshold.", nameof(unhealthyThreshold));
+            }
+
+            if (degradedThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(degradedThreshold));
+            }
+
+            if (unhealthyThreshold < 0)
+            {
+                throw new ArgumentException("must be greater than 0", nameof(unhealthyThreshold));
+            }
+
+            builder.AddCachedCheck(name, CheckMessageCount(name, CloudStorageAccount.Parse(connectionString), queueName, degradedThreshold, unhealthyThreshold), cacheDuration);
+
+            return builder.Builder;
+        }
+
+        private static Func<ValueTask<HealthCheckResult>> CheckQueueExists(string name, CloudStorageAccount storageAccount, string queueName)
+        {
+            var queue = storageAccount
+                .CreateCloudQueueClient()
+                .GetQueueReference(queueName);
+
             return async () =>
             {
                 bool result;
 
                 try
                 {
-                    var queueClient = storageAccount.CreateCloudQueueClient();
-
-                    var queue = queueClient.GetQueueReference(queueName);
-
                     result = await queue.ExistsAsync();
                 }
                 catch (Exception ex)
@@ -140,16 +254,51 @@ namespace App.Metrics.Health
             };
         }
 
+        private static Func<ValueTask<HealthCheckResult>> CheckMessageCount(string name, CloudStorageAccount storageAccount, string queueName, long degradedThreshold, long? unhealthyThreshold)
+        {
+            var queue = storageAccount
+                .CreateCloudQueueClient()
+                .GetQueueReference(queueName);
+
+            return async () =>
+            {
+                int? result = null;
+
+                try
+                {
+                    await queue.FetchAttributesAsync().ConfigureAwait(false);
+                    result = queue.ApproximateMessageCount;
+                }
+                catch (Exception ex)
+                {
+                    Logger.ErrorException($"{name} failed.", ex);
+
+                    return HealthCheckResult.Unhealthy($"Failed. Unable to check queue '{queueName}'.");
+                }
+
+                if (result > 0 && result >= unhealthyThreshold)
+                {
+                    return HealthCheckResult.Unhealthy($"Unhealthy. '{queueName}' has {result.Value} messages.");
+                }
+
+                if (result > 0 && result >= degradedThreshold)
+                {
+                    return HealthCheckResult.Degraded($"Degraded. '{queueName}' has {result.Value} messages.");
+                }
+
+                return HealthCheckResult.Healthy($"OK. '{queueName}' has {result} messages.");
+            };
+        }
+
         private static Func<ValueTask<HealthCheckResult>> CheckStorageAccountConnectivity(string name, CloudStorageAccount storageAccount)
         {
+            var queueClient = storageAccount.CreateCloudQueueClient();
             return async () =>
             {
                 var result = true;
 
                 try
                 {
-                    var queueClient = storageAccount.CreateCloudQueueClient();
-
                     await queueClient.GetServicePropertiesAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
