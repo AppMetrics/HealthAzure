@@ -4,7 +4,6 @@
 
 using System;
 using System.Net;
-using System.Threading;
 using System.Threading.Tasks;
 using App.Metrics.Health.Logging;
 using Microsoft.Azure.Documents;
@@ -12,7 +11,7 @@ using Microsoft.Azure.Documents.Client;
 
 // ReSharper disable CheckNamespace
 namespace App.Metrics.Health
-    // ReSharper restore CheckNamespace
+// ReSharper restore CheckNamespace
 {
     public static class AzureDocumentDBHealthCheckBuilderExtensions
     {
@@ -128,18 +127,16 @@ namespace App.Metrics.Health
 
         private static Func<ValueTask<HealthCheckResult>> CheckDocumentDbCollectionExists(Uri collectionUri, string endpointUri, string key)
         {
+            var documentClient = new DocumentClient(new Uri(endpointUri), key);
             return async () =>
             {
                 bool result;
 
                 try
                 {
-                    using (var documentClient = new DocumentClient(new Uri(endpointUri), key))
-                    {
-                        var database = await documentClient.ReadDocumentCollectionAsync(collectionUri);
+                    var database = await documentClient.ReadDocumentCollectionAsync(collectionUri).ConfigureAwait(false);
 
-                        result = database?.StatusCode == HttpStatusCode.OK;
-                    }
+                    result = database?.StatusCode == HttpStatusCode.OK;
                 }
                 catch (DocumentClientException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
                 {
@@ -168,7 +165,7 @@ namespace App.Metrics.Health
 
                 try
                 {
-                    var database = await documentClient.ReadDocumentCollectionAsync(collectionUri);
+                    var database = await documentClient.ReadDocumentCollectionAsync(collectionUri).ConfigureAwait(false);
 
                     result = database?.StatusCode == HttpStatusCode.OK;
                 }
@@ -199,7 +196,7 @@ namespace App.Metrics.Health
 
                 try
                 {
-                    var database = await documentClient.ReadDatabaseAsync(databaseUri);
+                    var database = await documentClient.ReadDatabaseAsync(databaseUri).ConfigureAwait(false);
 
                     result = database?.StatusCode == HttpStatusCode.OK;
                 }
@@ -224,23 +221,16 @@ namespace App.Metrics.Health
 
         private static Func<ValueTask<HealthCheckResult>> CheckDocumentDBDatabaseConnectivity(Uri databaseUri, string endpointUri, string key)
         {
+            var documentClient = new DocumentClient(new Uri(endpointUri), key);
             return async () =>
             {
                 bool result;
 
                 try
                 {
-                    using (var documentClient = new DocumentClient(new Uri(endpointUri), key))
-                    {
-                        var token = new CancellationTokenSource();
-                        token.CancelAfter(TimeSpan.FromSeconds(10));
+                    var database = await documentClient.ReadDatabaseAsync(databaseUri).ConfigureAwait(false);
 
-                        await documentClient.OpenAsync(token.Token).ConfigureAwait(false);
-
-                        var database = await documentClient.ReadDatabaseAsync(databaseUri);
-
-                        result = database?.StatusCode == HttpStatusCode.OK;
-                    }
+                    result = database?.StatusCode == HttpStatusCode.OK;
                 }
                 catch (DocumentClientException ex) when (ex.StatusCode == HttpStatusCode.NotFound)
                 {

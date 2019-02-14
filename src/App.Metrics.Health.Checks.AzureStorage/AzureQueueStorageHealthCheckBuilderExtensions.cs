@@ -239,7 +239,7 @@ namespace App.Metrics.Health
 
                 try
                 {
-                    result = await queue.ExistsAsync();
+                    result = await queue.ExistsAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {

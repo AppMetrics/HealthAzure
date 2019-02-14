@@ -130,7 +130,7 @@ namespace App.Metrics.Health
 
                     var tableReference = tableStorageClient.GetTableReference(tableName);
 
-                    result = await tableReference.ExistsAsync();
+                    result = await tableReference.ExistsAsync().ConfigureAwait(false);
                 }
                 catch (Exception ex)
                 {
